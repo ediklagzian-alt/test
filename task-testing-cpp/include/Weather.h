@@ -1,9 +1,12 @@
+
+
 #pragma once
 
 #include "json.hpp"
 #include "cpr/cpr.h"
 
 using json = nlohmann::json;
+
 
 class Weather {
  public:
