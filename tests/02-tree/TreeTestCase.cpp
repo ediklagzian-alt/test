@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <fstream>
 #include <stdexcept>
-#include <cstdlib>   // для rand()
+#include <cstdlib>
 
 namespace fs = std::filesystem;
 
@@ -13,18 +13,15 @@ protected:
     fs::path tmp_dir;
 
     void SetUp() override {
-        // Уникальная временная директория для каждого теста
         tmp_dir = fs::temp_directory_path() /
                   ("tree_test_" + std::to_string(rand()));
         fs::create_directories(tmp_dir);
     }
 
     void TearDown() override {
-        // Гарантированно удаляем всё за собой
         fs::remove_all(tmp_dir);
     }
 
-    // Вспомогательные методы, чтобы не дублировать код
     void createFile(const fs::path& relative) {
         auto full = tmp_dir / relative;
         fs::create_directories(full.parent_path());
@@ -35,8 +32,6 @@ protected:
         fs::create_directories(tmp_dir / relative);
     }
 };
-
-// ========== GetTree ==========
 
 TEST_F(TreeTest, GetTree_NonExistentPath_Throws) {
     EXPECT_THROW(GetTree((tmp_dir / "nonexistent").string(), false),
@@ -110,12 +105,10 @@ TEST_F(TreeTest, GetTree_NestedDirectories) {
     EXPECT_EQ(c.children[0].name, "deep.txt");
 }
 
-// ========== FilterEmptyNodes ==========
-
 TEST_F(TreeTest, FilterEmptyNodes_RootEmptyAndDefaultPath_Throws) {
     auto root = GetTree(tmp_dir.string(), false);
     EXPECT_TRUE(root.children.empty());
-    EXPECT_THROW(FilterEmptyNodes(root), std::runtime_error);
+    EXPECT_THROW(FilterEmptyNodes(root, tmp_dir), std::runtime_error);
 }
 
 TEST_F(TreeTest, FilterEmptyNodes_RemovesEmptySubdirectories) {
@@ -127,10 +120,8 @@ TEST_F(TreeTest, FilterEmptyNodes_RemovesEmptySubdirectories) {
     auto root = GetTree(tmp_dir.string(), false);
     FilterEmptyNodes(root, tmp_dir);
 
-    // Пустые папки исчезли
     EXPECT_FALSE(fs::exists(tmp_dir / "empty_dir"));
     EXPECT_FALSE(fs::exists(tmp_dir / "sub/empty_inside"));
-    // Непустые и файлы остались
     EXPECT_TRUE(fs::exists(tmp_dir / "file.txt"));
     EXPECT_TRUE(fs::exists(tmp_dir / "sub"));
     EXPECT_TRUE(fs::exists(tmp_dir / "sub/not_empty"));
