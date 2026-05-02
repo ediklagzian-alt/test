@@ -6,7 +6,7 @@ set(SOURCES ${01-source-files})
 
 message(INFO ${SOURCES})
 
-set(TEST_SOURCES AddTestCase.h AddTestCase.cpp LeapTestCase.cpp LeapTestCase.h)
+set(TEST_SOURCES AddTestCase.h AddTestCase.cpp LeapTestCase.cpp LeapTestCase.h MonthDaysTestCase.cpp)
 run_coverage(
     "${TEST_SOURCES}"
     "${SOURCES}"
